@@ -42,6 +42,9 @@ export const VibeMVPPlugin: Plugin = async (ctx) => {
 3. 将项目各个功能拆分为模块，然后在modules中创建各个模块的文档
 4. 综合guide和modules，为项目拆分版本，将其写在roadmap中
 
+注意：
+1. 不要动\`.mvp/.vitepress/config.ts\`的外层({title、description、locales、themeConfig})配置结构，避免影响i18n
+
 最后，希望你的MVP方案尽可能的完善
 
 完成后请执行：
