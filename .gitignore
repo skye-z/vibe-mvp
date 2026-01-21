@@ -1,0 +1,37 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+
+# Yarn
+.pnp.cjs
+.pnp.loader.mjs
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+.yarnrc.yml
+yarn.lock
+
+# OpenCode plugin runtime 
+.opencode/node_modules/
+.opencode/plugins/
+.opencode/bun.lock
+.opencode/.gitignore
+
+# VitePress build output
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+
+# VibeMVP runtime (user project data)
+.mvp
+
+templates/node_modules/
+templates/.vitepress/cache/
+templates/.vitepress/dist/
+templates/.yarn/
+templates/yarn.lock
+release/
