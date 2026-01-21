@@ -14,7 +14,6 @@ dist/
 !.yarn/sdks
 !.yarn/versions
 .yarnrc.yml
-yarn.lock
 
 # OpenCode plugin runtime 
 .opencode/node_modules/
@@ -29,9 +28,9 @@ docs/.vitepress/dist/
 # VibeMVP runtime (user project data)
 .mvp
 
-templates/node_modules/
-templates/.vitepress/cache/
-templates/.vitepress/dist/
-templates/.yarn/
-templates/yarn.lock
+template/node_modules/
+template/.vitepress/cache/
+template/.vitepress/dist/
+template/.yarn/
+template/yarn.lock
 release/
