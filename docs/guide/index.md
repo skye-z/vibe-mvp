@@ -32,6 +32,6 @@ VibeMVP 是一个面向 OpenCode 的 MVP 风格项目管理与文档生成插件
 
 ## 下一步
 
-- [快速开始](/zh/guide/getting-started) - 快速入门指南
-- [命令参考](/zh/guide/commands) - 了解所有可用命令
-- [配置](/zh/guide/configuration) - 自定义 VibeMVP
+- [快速开始](/guide/getting-started) - 快速入门指南
+- [命令参考](/guide/commands) - 了解所有可用命令
+- [配置](/guide/configuration) - 自定义 VibeMVP

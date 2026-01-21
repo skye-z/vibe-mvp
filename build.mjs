@@ -2,7 +2,7 @@ import { copyFileSync, mkdirSync, readdirSync, existsSync, rmSync, writeFileSync
 import { join, resolve } from 'path';
 
 const projectRoot = resolve(process.cwd());
-const releaseDir = join(projectRoot, 'release');
+const distDir = join(projectRoot, 'dist');
 
 function copyDir(src, dest) {
   if (!existsSync(src)) return;
@@ -31,108 +31,70 @@ function copyDir(src, dest) {
   }
 }
 
-function copySpecificFiles(srcPatterns, destDir) {
-  for (const pattern of srcPatterns) {
-    const srcPath = join(projectRoot, pattern);
-    const fileName = pattern.split('/').pop();
-    const destPath = join(destDir, fileName);
-
-    if (existsSync(srcPath)) {
-      try {
-        copyFileSync(srcPath, destPath);
-        console.log(`Copied ${pattern} to ${destPath}`);
-      } catch (e) {
-        console.warn(`Failed to copy ${srcPath}: ${e.message}`);
-      }
-    }
-  }
-}
-
-function generateCommandDocs() {
-  const commands = [
-    {
-      name: 'mvp_init',
-      description: 'Initialize VibeMVP project management',
-      args: [
-        { name: 'requirements', description: 'Project requirements in natural language', required: true },
-        { name: 'projectName', description: 'Optional project name', required: false },
-      ],
-    },
-    {
-      name: 'mvp_add',
-      description: 'Add new requirement to VibeMVP project',
-      args: [
-        { name: 'requirement', description: 'New requirement in natural language', required: true },
-      ],
-    },
-    {
-      name: 'mvp_next',
-      description: 'Execute the next pending task in VibeMVP roadmap',
-      args: [],
-    },
-  ];
-
-  for (const cmd of commands) {
-    const content = `---
-description: ${cmd.description}
-agent: general
----
-
-You are a VibeMVP assistant. The user wants to use the ${cmd.name} command.
-
-${cmd.args.length > 0 ? `Extract the required arguments from the user's message:
-${cmd.args.filter(a => a.required).map(a => `- ${a.name}: ${a.description}`).join('\n')}
-
-${cmd.args.filter(a => !a.required).map(a => `- ${a.name} (optional): ${a.description}`).join('\n')}` : 'No arguments required.'}
-
-Then execute the ${cmd.name} tool with the extracted arguments.
-
-Use the tool system to call:
-${cmd.name}(${cmd.args.map(a => a.name).join(', ')})
-
-Where the arguments should be extracted from the user's request or set to appropriate defaults.
-`;
-    writeFileSync(join(releaseDir, 'commands', `${cmd.name}.md`), content);
-  }
-}
-
 console.log('Building VibeMVP plugin...');
 
-if (existsSync(releaseDir)) {
-  rmSync(releaseDir, { recursive: true, force: true });
+if (existsSync(distDir)) {
+  rmSync(distDir, { recursive: true, force: true });
 }
 
-mkdirSync(join(releaseDir, 'commands'), { recursive: true });
-mkdirSync(join(releaseDir, 'plugins', 'vibe-mvp', 'template'), { recursive: true });
+mkdirSync(join(distDir, 'template', 'guide'), { recursive: true });
+mkdirSync(join(distDir, 'template', 'modules'), { recursive: true });
+mkdirSync(join(distDir, 'template', 'roadmap'), { recursive: true });
+mkdirSync(join(distDir, 'template', 'zh', 'guide'), { recursive: true });
+mkdirSync(join(distDir, 'template', 'zh', 'modules'), { recursive: true });
+mkdirSync(join(distDir, 'template', 'zh', 'roadmap'), { recursive: true });
 
-copyDir(join(projectRoot, 'template', 'guide'), join(releaseDir, 'plugins', 'vibe-mvp', 'template', 'guide'));
-copyDir(join(projectRoot, 'template', 'modules'), join(releaseDir, 'plugins', 'vibe-mvp', 'template', 'modules'));
-copyDir(join(projectRoot, 'template', 'roadmap'), join(releaseDir, 'plugins', 'vibe-mvp', 'template', 'roadmap'));
-copyDir(join(projectRoot, 'template', 'zh', 'guide'), join(releaseDir, 'plugins', 'vibe-mvp', 'template', 'zh', 'guide'));
-copyDir(join(projectRoot, 'template', 'zh', 'modules'), join(releaseDir, 'plugins', 'vibe-mvp', 'template', 'zh', 'modules'));
-copyDir(join(projectRoot, 'template', 'zh', 'roadmap'), join(releaseDir, 'plugins', 'vibe-mvp', 'template', 'zh', 'roadmap'));
-copyDir(join(projectRoot, 'template', 'zh'), join(releaseDir, 'plugins', 'vibe-mvp', 'template', 'zh'));
+copyDir(join(projectRoot, 'template', 'guide'), join(distDir, 'template', 'guide'));
+copyDir(join(projectRoot, 'template', 'modules'), join(distDir, 'template', 'modules'));
+copyDir(join(projectRoot, 'template', 'roadmap'), join(distDir, 'template', 'roadmap'));
+copyDir(join(projectRoot, 'template', 'zh', 'guide'), join(distDir, 'template', 'zh', 'guide'));
+copyDir(join(projectRoot, 'template', 'zh', 'modules'), join(distDir, 'template', 'zh', 'modules'));
+copyDir(join(projectRoot, 'template', 'zh', 'roadmap'), join(distDir, 'template', 'zh', 'roadmap'));
 
 const rootFiles = [
   'template/index.md',
   'template/package.json',
 ];
-copySpecificFiles(rootFiles, join(releaseDir, 'plugins', 'vibe-mvp', 'template'));
-
-const pluginTsPath = join(projectRoot, 'src', 'plugin.ts');
-const pluginTsDest = join(releaseDir, 'plugins', 'mvp-plugins.ts');
-if (existsSync(pluginTsPath)) {
-  copyFileSync(pluginTsPath, pluginTsDest);
-  console.log(`Copied plugin.ts to ${pluginTsDest}`);
+for (const pattern of rootFiles) {
+  const srcPath = join(projectRoot, pattern);
+  const fileName = pattern.split('/').pop();
+  const destPath = join(distDir, 'template', fileName);
+  if (existsSync(srcPath)) {
+    copyFileSync(srcPath, destPath);
+  }
 }
 
-generateCommandDocs();
+const pluginContent = readFileSync(join(projectRoot, 'src', 'plugin.ts'), 'utf-8');
+const exportContent = `/**
+ * VibeMVP - OpenCode Plugin for MVP-style project management
+ * @packageDocumentation
+ */
 
-console.log('Plugin built to release/ directory');
+export type { Plugin, Tool, Context } from '@opencode-ai/plugin';
+
+// Core plugin
+export { VibeMVPPlugin, default } from './plugin';
+
+// Re-export for convenience
+export const tools = {
+  mvp_init: 'Initialize VibeMVP project management',
+  mvp_add: 'Add new requirement to VibeMVP',
+  mvp_next: 'Execute next pending task in roadmap',
+};
+`;
+
+writeFileSync(join(distDir, 'plugin.js'), pluginContent);
+writeFileSync(join(distDir, 'index.js'), `export { VibeMVPPlugin, default, tools } from './plugin.js';`);
+writeFileSync(join(distDir, 'index.d.ts'), exportContent);
+
+console.log('Plugin built to dist/ directory');
 console.log('Contents:');
-console.log('  release/');
-console.log('    commands/       - Command documentation');
-console.log('    plugins/vibe-mvp/ - VibeMVP plugin files');
-console.log('      template/     - Template files');
-console.log('      package.json  - Package configuration');
-console.log('    mvp-plugins.ts  - Plugin source');
+console.log('  dist/');
+console.log('    plugin.js       - Main plugin code');
+console.log('    index.js        - Entry point');
+console.log('    index.d.ts      - TypeScript declarations');
+console.log('    template/       - MVP template files');
+console.log('      guide/');
+console.log('      modules/');
+console.log('      roadmap/');
+console.log('      zh/');
